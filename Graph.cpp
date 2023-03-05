@@ -9,36 +9,63 @@ Graph::~Graph()
     {
     }
 
-std::unordered_map<int, Node>& Graph::GetGraph()
+// std::unordered_map<int, Node>& Graph::GetGraph()
+
+void Graph::AddVertex(int idx, std::shared_ptr<Node> nodeSmartPtr)
 {
-    return mgraph;
+    mgraph[idx] = nodeSmartPtr;
+
+    // std::cout<<"vertex added!"<<std::endl; 
 }
 
-std::vector<std::vector<double>>& Graph::GetVertices()
+void Graph::AddVertex(std::shared_ptr<Node> nodeSmartPtr)
 {
-    return mvertices;
+    mgraph.push_back(nodeSmartPtr);    
 }
 
-void Graph::AddVertex(int idx, std::vector<double> vertex)
+/*
+bool Graph::IsSameComponent(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
 {
-    // std::shared_ptr<Node> nodeSmartPtr = std::make_shared<Node>(vertex); 
-    // mgraph[vertex] = nodeSmartPtr;
-    Node newNode(vertex);
-    mgraph[idx] = newNode;
+
+    // Run Kruskal algorithm to check if the nodes are connected
+    Kruskal kruskal(mgraph);    // Kruskal kruskal(nodes, edges);
+    std::vector<Edge> mst = kruskal.GetMST();    
+
+    return kruskal.AreSameConnected(mst, node1SmartPtr, node2SmartPtr);
 }
+*/
 
-bool Graph::IsSameComponent(int idx, Node node)
+bool Graph::IsSameComponent(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
 {
-    // Implementation ideas?
-
-
-
-
-
+    // std::cout<<"node1: " << node1SmartPtr->GetComponentID() << " node2: " << node2SmartPtr->GetComponentID() <<std::endl;
+    
+    if(node1SmartPtr->GetComponentID() == node2SmartPtr->GetComponentID()){
+        // std::cout<<"ID Same" <<std::endl;
+        return true;
+    }
+    // std::cout<<"ID DIFFERENT" <<std::endl;
     return false;
 }
 
-void Graph::AddEdge(int idx, Node node)
+void UpdateComponentIDs(std::shared_ptr<Node>& node1SmartPtr, std::shared_ptr<Node> node2SmartPtr) {
+
+    if (node2SmartPtr == node2SmartPtr->GetEdge()){
+        std::cout << "ERROR: Node points to itself. Good luck!" << std::endl;
+    }
+    
+    if (node2SmartPtr->GetEdge() == nullptr) {
+        return;
+    }
+    // std::cout<< "update componentID" << std:: endl;
+    // std::cout<< node2SmartPtr<< " " << node2SmartPtr->GetEdge() << " : " <<node2SmartPtr.use_count() << std::endl;
+    node2SmartPtr->SetComponentID(node1SmartPtr->GetComponentID());
+    UpdateComponentIDs(node1SmartPtr, node2SmartPtr->GetEdge());
+}
+
+
+
+void Graph::AddEdge(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
 {
-    mgraph[idx].SetEdge(node);
+    node1SmartPtr->SetEdge(node2SmartPtr);
+    UpdateComponentIDs(node1SmartPtr, node2SmartPtr);
 }

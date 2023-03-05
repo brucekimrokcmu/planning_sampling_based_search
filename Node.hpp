@@ -1,19 +1,30 @@
 #pragma once
+// #include "Edge.hpp"
 #include <limits>
 #include <memory>
 #include <vector>
 
-
 class Node{
     
     public:
-        // For hw2, the following constructor is used
-        Node();
-        Node(std::vector<double> vertex);  
-        
+        Node(){};
+        Node(int idx, std::vector<double> vertex)
+        : midx(idx), mvertex(vertex), mG(std::numeric_limits<double>::infinity()), mH(0), mF(0), mpedge(nullptr), mcomponentID(idx)
+        {
+        }
         inline std::vector<double> GetJointPose() const {return mvertex;};
-        inline std::vector<Node*> GetEdge() const {return mpedges;};
-        void SetEdge(Node node);
+        inline int GetIndex() const {return midx;}
+
+        // using simple linked list 
+        inline std::shared_ptr<Node> GetEdge() const {return mpedge;};
+        inline void SetEdge(std::shared_ptr<Node> edge) {mpedge = edge;};
+        inline int GetComponentID() const {return mcomponentID;};
+        inline void SetComponentID(int val) {mcomponentID = val;};
+
+        // // Kruskal's algorithm
+        // inline std::vector<Edge> GetEdges() const {return medges;};
+        // inline void SetEdges(std::vector<Edge> edge) {};
+        
 
         inline double GetGValue() const {return mG;};
         inline void SetGValue(const double val) {mG = val;};
@@ -25,17 +36,16 @@ class Node{
         inline void SetTempDist(const double val) {mtempDist = val;};
 
     private:
+        int midx; // Not needed after discarding kruskal's algorithm
         std::vector<double> mvertex;
-        std::vector<Node*> mpedges;
-        // Cell cost g-value and heuristics
+        std::shared_ptr<Node> mpedge;
+        int mcomponentID;
+        // std::vector<Edge> medges;
         double mG;
         double mH;
         double mF;
-        //
         double mtempDist;
 
-        // Backtracking 
-        // Node* mpParent;
-        // keep a pointer to your parent
- 
+
+
 };

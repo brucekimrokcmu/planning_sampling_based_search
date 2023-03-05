@@ -8,6 +8,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <ostream>
 
 #include <tuple>
 #include <string>
@@ -52,85 +53,6 @@
 //the length of each link in the arm
 #define LINKLENGTH_CELLS 10
 
-// Some potentially helpful imports
-using std::vector;
-using std::array;
-using std::string;
-using std::runtime_error;
-using std::tuple;
-using std::make_tuple;
-using std::tie;
-using std::cout;
-using std::endl;
-
-/// @brief 
-/// @param filepath 
-/// @return map, x_size, y_size
-tuple<double*, int, int> loadMap(string filepath) {
-	std::FILE *f = fopen(filepath.c_str(), "r");
-	if (f) {
-	}
-	else {
-		printf("Opening file failed! \n");
-		throw runtime_error("Opening map file failed!");
-	}
-	int height, width;
-	if (fscanf(f, "height %d\nwidth %d\n", &height, &width) != 2) {
-		throw runtime_error("Invalid loadMap parsing map metadata");
-	}
-	
-	////// Go through file and add to m_occupancy
-	double* map = new double[height*width];
-
-	double cx, cy, cz;
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			char c;
-			do {
-				if (fscanf(f, "%c", &c) != 1) {
-					throw runtime_error("Invalid parsing individual map data");
-				}
-			} while (isspace(c));
-			if (!(c == '0')) { 
-				map[y+x*width] = 1; // Note transposed from visual
-			} else {
-				map[y+x*width] = 0;
-			}
-		}
-	}
-	fclose(f);
-	return make_tuple(map, width, height);
-}
-
-// Splits string based on deliminator
-vector<string> split(const string& str, const string& delim) {   
-		// https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c/64886763#64886763
-		const std::regex ws_re(delim);
-		return { std::sregex_token_iterator(str.begin(), str.end(), ws_re, -1), std::sregex_token_iterator() };
-}
-
-
-double* doubleArrayFromString(string str) {
-	vector<string> vals = split(str, ",");
-	double* ans = new double[vals.size()];
-	for (int i = 0; i < vals.size(); ++i) {
-		ans[i] = std::stod(vals[i]);
-	}
-	return ans;
-}
-
-bool equalDoubleArrays(double* v1, double *v2, int size) {
-    for (int i = 0; i < size; ++i) {
-        if (abs(v1[i]-v2[i]) > 1e-3) {
-            cout << endl;
-            return false;
-        }
-    }
-    return true;
-}
-
-
-
 static void planner(
 			double* map,
 			int x_size,
@@ -144,19 +66,15 @@ static void planner(
 	//no plan by default
 	*plan = NULL;
 	*planlength = 0;
+	int numOfSamples = 1000;
+	const double maxDist = 2*PI; //6;
+	// std::cout<<"Instantiating PRMSolver class"<<std::endl;
+	PRMSolver prm(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, numOfSamples, maxDist);
+	// std::cout<<"Calling BUildRoadMap function"<<std::endl;
+	std::unique_ptr<Graph> graphSmartPtr = prm.BuildRoadMap();
+	// *path = prm.QueryRoadMap(graphSmartPtr);
 
-	
-
-	// PRMSolver::BuildRoadMap();
-	// path = QueryRoadMap();
-
-
-
-
-
-
-
-
+	return;
 
     //for now just do straight interpolation between start and goal checking for the validity of samples
 

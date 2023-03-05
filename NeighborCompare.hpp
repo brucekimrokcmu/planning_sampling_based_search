@@ -1,13 +1,17 @@
 #pragma once
+#include <iostream>
 #include "Node.hpp"
 
 class NeighborCompare{
     public:
-        bool operator()(Node node1, Node node2)
+        bool operator()(std::shared_ptr<Node> pnode1, std::shared_ptr<Node> pnode2)
         {
-            if ((node1.GetTempDist()) >= (node2.GetTempDist())) {
+            // std::cout<<"start compare" << std::endl;
+            if ((pnode1->GetTempDist()) >= (pnode2->GetTempDist())) {
+                // std::cout<<"return true" << std::endl;
                 return true;
             } else {
+                // std::cout<<"return false" << std::endl;
                 return false;
             }
         }

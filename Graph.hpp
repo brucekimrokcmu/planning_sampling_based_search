@@ -1,23 +1,30 @@
 #pragma once
-#include "Node.hpp"
-#include <random>
-#include <set>
 #include "stdlib.h"
-#include <unordered_map>
+// #include "DisjointSet.hpp"
+// #include "Edge.hpp"
+// #include "Kruskal.hpp"
+#include "Node.hpp"
 #include "Utils.hpp"
 
+#include <ostream>
+#include <random>
+#include <set>
+#include <unordered_map>
 
-class Graph
+
+class Graph //: public DisjointSet, public Edge, public Kruskal
 {
     public:
         Graph(double* map, int maxX, int maxY, int numOfDOFs, int numOfSamples);
-        ~Graph();
-        // inline std::unordered_map<std::vector<double>, std::shared_ptr<Node>>& GetGraph(){return mgraph;};
-        std::unordered_map<int, Node>& GetGraph();
-        std::vector<std::vector<double>>& GetVertices();
-        void AddVertex(int idx, std::vector<double> vertex);
-        bool IsSameComponent(int idx, Node node);
-        void AddEdge(int idx, Node node);
+        ~Graph();        
+        // std::unordered_map<int, std::shared_ptr<Node>>& GetGraph() {return mgraph;};
+        std::vector<std::shared_ptr<Node>>& GetGraph() {return mgraph;};
+        void AddVertex(int idx, std::shared_ptr<Node> nodeSmartPtr);
+        void AddVertex(std::shared_ptr<Node> nodeSmartPtr);
+        bool IsSameComponent(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr);
+        void AddEdge(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr);
+
+
 
     private:
         double* mmap;
@@ -25,8 +32,9 @@ class Graph
         int mmaxY;
         int mnumOfDOFs;
         int mnumOfSamples;
-        std::vector<std::vector<double>> mvertices;
-        std::unordered_map<int, Node> mgraph;
+        // std::unordered_map<int, std::shared_ptr<Node>> mgraph;
+        std::vector<std::shared_ptr<Node>> mgraph;
+
 
     // look up KD tree
 };
