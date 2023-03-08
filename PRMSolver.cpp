@@ -77,28 +77,52 @@ bool PRMSolver::IsConnect(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<N
     return true;
 }
 
-std::unique_ptr<Graph> PRMSolver::BuildRoadMap()
+
+std::unique_ptr<Graph> PRMSolver::InitializeGraph()
 {
     std::unique_ptr<Graph> graphSmartPtr(new Graph(mmap, mmaxX, mmaxY, mnumOfDOFs, mnumOfSamples));
+
+    int i = 0;
+    while(i<mnumOfSamples){
+        int idx = i;
+        std::vector<double> vertex = SampleRandomVertex();
+        double* angles = vertex.data();
+        if(!IsValidArmConfiguration(angles, mnumOfDOFs, mmap, mmaxX, mmaxY)){
+            continue;
+        }
+        std::shared_ptr<Node> node1SmartPtr = std::make_shared<Node>(idx, vertex);
+        graphSmartPtr->AddVertex(node1SmartPtr);
+        i++;
+    }
+
+    return graphSmartPtr;
+
+}
+
+
+void PRMSolver::BuildRoadMap(std::unique_ptr<Graph>& pgraph)
+{
+
     // std::cout<<"Created graphSmartPtr"<<std::endl;
     int i = 0;
     float progress = 0.0;
     while (i < mnumOfSamples)
     {
-        int idx = i;
-        std::vector<double> vertex = SampleRandomVertex();
-        // std::cout<<"Sampled vertex"<<std::endl;
-        double* angles = vertex.data();
-        if(!IsValidArmConfiguration(angles, mnumOfDOFs, mmap, mmaxX, mmaxY)) {
-            // std::cout<<"new vertex conflict!"<<std::endl;
-            continue;               
-        }
+        // int idx = i;
+        // std::vector<double> vertex = SampleRandomVertex();
+        // // std::cout<<"Sampled vertex"<<std::endl;
+        // double* angles = vertex.data();
+        // if(!IsValidArmConfiguration(angles, mnumOfDOFs, mmap, mmaxX, mmaxY)) {
+        //     // std::cout<<"new vertex conflict!"<<std::endl;
+        //     continue;               
+        // }
             
-        std::shared_ptr<Node> node1SmartPtr = std::make_shared<Node>(idx, vertex);
-        graphSmartPtr->AddVertex(node1SmartPtr);
-        i++;
+        // std::shared_ptr<Node> node1SmartPtr = std::make_shared<Node>(idx, vertex);
+        // pgraph->AddVertex(node1SmartPtr);
+
         // std::cout<<"i is: "<< i <<"\n" ;
-        std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetNearestNeighbor(node1SmartPtr, graphSmartPtr.get());
+        std::shared_ptr<Node> node1SmartPtr = pgraph->GetGraph()[i];
+        std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetNearestNeighbor(node1SmartPtr, pgraph.get());
         // std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetKNumberOfNeighbor(node1SmartPtr, graphSmartPtr.get());
         
         while (!neighbors.empty()){
@@ -110,7 +134,7 @@ std::unique_ptr<Graph> PRMSolver::BuildRoadMap()
 
             mcomponentMap[node1ID].push_back(node1SmartPtr);
             // std::cout << node1SmartPtr->GetComponentID()<< " " << neighborRef->GetComponentID()<<std::endl;;
-            if((!graphSmartPtr->IsSameComponent(node1SmartPtr, neighborRef)) || IsConnect(node1SmartPtr, neighborRef)) {
+            if((!pgraph->IsSameComponent(node1SmartPtr, neighborRef)) || IsConnect(node1SmartPtr, neighborRef)) {
                 if (node1SmartPtr == neighborRef) {
                     continue;
                 }
@@ -139,9 +163,10 @@ std::unique_ptr<Graph> PRMSolver::BuildRoadMap()
             progress += 0.1;
         }
         // std::cout<<"neightbor empty!"<<std::endl; 
+        i++;
     }
 
-    std::cout<<"graph size is: "<<graphSmartPtr->GetGraph().size()<<std::endl;
+    std::cout<<"graph size is: "<<pgraph->GetGraph().size()<<std::endl;
     // for (int i=0; i<graphSmartPtr->GetGraph().size(); i++) {
     //     std::cout<<"Vertex, idx : "<<graphSmartPtr->GetGraph()[i]<< ", "<< graphSmartPtr->GetGraph()[i]->GetIndex() <<" edge: ";
     //     for (auto& edge : graphSmartPtr->GetGraph()[i]->GetEdges()){
@@ -150,7 +175,6 @@ std::unique_ptr<Graph> PRMSolver::BuildRoadMap()
     //     std::cout<<std::endl;
     // }
 
-    return graphSmartPtr; // C++ omits the copy operation here.
 }
 
 inline std::vector<double> ArrayToVector(double* arr, size_t arr_len) {
