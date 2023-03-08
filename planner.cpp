@@ -67,7 +67,7 @@ static void planner(
 	*plan = NULL;
 	*planlength = 0;
 	std::vector<std::vector<double>> path;
-	int numOfSamples = 1000;
+	int numOfSamples = 5000;
 	const double MAXDIST_THRESHOLD = PI;
 	// std::cout<<"Instantiating PRMSolver class"<<std::endl;
 	PRMSolver prm(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, numOfSamples, MAXDIST_THRESHOLD);

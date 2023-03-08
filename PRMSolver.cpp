@@ -54,6 +54,24 @@ std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, N
     return neighbors;    
 }
 
+std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> PRMSolver::GetKNumberOfNeighbor(std::shared_ptr<Node> node1SmartPtr, Graph* pgraph)
+{
+    std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors;
+    double dist;
+
+    for (int i=0; i<pgraph->GetGraph().size(); i++) {
+        dist = ComputeDistance(node1SmartPtr, pgraph->GetGraph()[i]);
+        
+        pgraph->GetGraph()[i]->SetTempDist(dist);
+        neighbors.push(pgraph->GetGraph()[i]);
+            // std::cout<<"Added! dist: " << dist << " maxDist: "<< mmaxDist <<std::endl;
+        
+    }
+
+    return neighbors; 
+
+}
+
 bool PRMSolver::IsConnect(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
 {
     int t=0;
@@ -122,10 +140,12 @@ void PRMSolver::BuildRoadMap(std::unique_ptr<Graph>& pgraph)
 
         // std::cout<<"i is: "<< i <<"\n" ;
         std::shared_ptr<Node> node1SmartPtr = pgraph->GetGraph()[i];
-        std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetNearestNeighbor(node1SmartPtr, pgraph.get());
-        // std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetKNumberOfNeighbor(node1SmartPtr, graphSmartPtr.get());
-        
-        while (!neighbors.empty()){
+        // std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetNearestNeighbor(node1SmartPtr, pgraph.get());
+        std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetKNumberOfNeighbor(node1SmartPtr, pgraph.get());
+        int K_THRESHOLD = 10;
+        int K_NEIGHBOR = 0;
+        // while (!neighbors.empty()) {
+        while (K_NEIGHBOR < K_THRESHOLD) {
             const std::shared_ptr<Node>& neighborRef = neighbors.top();
             // std::cout<< node1SmartPtr << " " << neighborRef << std::endl;
             neighbors.pop();
@@ -152,7 +172,7 @@ void PRMSolver::BuildRoadMap(std::unique_ptr<Graph>& pgraph)
                     } 
                     mcomponentMap.erase(node1ID);
                 }
-                
+                K_NEIGHBOR++;
             }
         } 
         // std::cout<< "node1's edgesize: " << node1SmartPtr->GetEdges().size() <<std::endl;
