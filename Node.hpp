@@ -9,38 +9,46 @@ class Node{
     public:
         Node(){};
         Node(int idx, std::vector<double> vertex)
-        : midx(idx), mvertex(vertex), mG(std::numeric_limits<double>::infinity()), mH(0), mF(0), mpedge(nullptr), mcomponentID(idx)
+        : midx(idx), mvertex(vertex), mG(std::numeric_limits<double>::infinity()), mH(0), mF(0), mcomponentID(idx), mpParent(nullptr) //, mvisited(false)
         {
         }
-        inline std::vector<double> GetJointPose() const {return mvertex;};
-        inline int GetIndex() const {return midx;}
+        std::vector<double> GetJointPose() const {return mvertex;};
+        int GetIndex() const {return midx;}
 
-        // using simple linked list 
-        inline std::shared_ptr<Node> GetEdge() const {return mpedge;};
-        inline void SetEdge(std::shared_ptr<Node> edge) {mpedge = edge;};
-        inline int GetComponentID() const {return mcomponentID;};
-        inline void SetComponentID(int val) {mcomponentID = val;};
+        std::vector<std::shared_ptr<Node>> GetEdges() const {return mpedges;};
 
+        void  AddEdge(std::shared_ptr<Node> edge) {mpedges.push_back(edge);};
+
+        // bool IsVisited() {return mvisited;};
+        // void SetVisited(bool val) { mvisited=val; };
+
+        int GetComponentID() const {return mcomponentID;};
+        void SetComponentID(int val) {mcomponentID = val;};
+        void SetParent(std::shared_ptr<Node> pnode) { mpParent = pnode;};
+        std::shared_ptr<Node> GetParent() const { return mpParent;};
+        
         // // Kruskal's algorithm
         // inline std::vector<Edge> GetEdges() const {return medges;};
         // inline void SetEdges(std::vector<Edge> edge) {};
         
 
-        inline double GetGValue() const {return mG;};
-        inline void SetGValue(const double val) {mG = val;};
-        inline double GetHValue() const {return mH;};
-        inline void SetHvalue(const double val){mH = val;};
-        inline double GetFValue() const {return mF;};
-        inline void SetFValue(const double val) {mF = val;};
-        inline double GetTempDist() const {return mtempDist;};
-        inline void SetTempDist(const double val) {mtempDist = val;};
+        double GetGValue() const {return mG;};
+        void SetGValue(const double val) {mG = val;};
+        double GetHValue() const {return mH;};
+        void SetHvalue(const double val){mH = val;};
+        double GetFValue() const {return mF;};
+        void SetFValue(const double val) {mF = val;};
+        double GetTempDist() const {return mtempDist;};
+        void SetTempDist(const double val) {mtempDist = val;};
 
     private:
-        int midx; // Not needed after discarding kruskal's algorithm
+        int midx; 
         std::vector<double> mvertex;
-        std::shared_ptr<Node> mpedge;
+        std::vector<std::shared_ptr<Node>> mpedges;
+        // bool mvisited;
         int mcomponentID;
-        // std::vector<Edge> medges;
+        std::shared_ptr<Node> mpParent;
+        // std::vector<Edge> medges; // Not needed after discarding kruskal's algorithm
         double mG;
         double mH;
         double mF;

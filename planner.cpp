@@ -66,15 +66,19 @@ static void planner(
 	//no plan by default
 	*plan = NULL;
 	*planlength = 0;
-	int numOfSamples = 1000;
-	const double maxDist = 2*PI; //6;
+	// std::vector<std::vector<double>> plan;
+	// int planlength = 0;
+	int numOfSamples = 500;
+	const double MAXDIST_THRESHOLD = 2*PI/3;
 	// std::cout<<"Instantiating PRMSolver class"<<std::endl;
-	PRMSolver prm(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, numOfSamples, maxDist);
+	PRMSolver prm(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, numOfSamples, MAXDIST_THRESHOLD);
 	// std::cout<<"Calling BUildRoadMap function"<<std::endl;
 	std::unique_ptr<Graph> graphSmartPtr = prm.BuildRoadMap();
-	// *path = prm.QueryRoadMap(graphSmartPtr);
 
-	return;
+	prm.QueryRoadMap(graphSmartPtr);
+	// plan = prm.QueryRoadMap(graphSmartPtr);
+
+
 
     //for now just do straight interpolation between start and goal checking for the validity of samples
 
@@ -137,8 +141,10 @@ int main(int argc, char** argv) {
 	///////////////////////////////////////
 	//// Feel free to modify anything below. Be careful modifying anything above.
 
-	double** plan = NULL;
+	double** plan = NULL; // plan can be a vector of vectors	
 	int planlength = 0;
+	// std::vector<std::vector<double>> plan;
+
 	planner(map, x_size, y_size, startPos, goalPos, numOfDOFs, &plan, &planlength);
 
 	//// Feel free to modify anything above.

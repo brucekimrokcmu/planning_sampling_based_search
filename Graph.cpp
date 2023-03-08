@@ -9,19 +9,70 @@ Graph::~Graph()
     {
     }
 
-// std::unordered_map<int, Node>& Graph::GetGraph()
-
-void Graph::AddVertex(int idx, std::shared_ptr<Node> nodeSmartPtr)
-{
-    mgraph[idx] = nodeSmartPtr;
-
-    // std::cout<<"vertex added!"<<std::endl; 
-}
-
 void Graph::AddVertex(std::shared_ptr<Node> nodeSmartPtr)
 {
     mgraph.push_back(nodeSmartPtr);    
 }
+
+bool Graph::IsSameComponent(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
+{
+    if(node1SmartPtr->GetComponentID() == node2SmartPtr->GetComponentID()){
+        // std::cout<<"ID Same" <<std::endl;
+        return true;
+    }
+    // std::cout<<"ID DIFFERENT" <<std::endl;
+    return false;
+}
+
+
+void Graph::UpdateComponentID(int id, std::shared_ptr<Node> pprevNode, std::shared_ptr<Node> pcurrNode)
+{
+    // Mark the current node as visited and update ID
+    pcurrNode->SetComponentID(id);
+    // Recur for all the vertices adjacent to this vertex
+    for (auto edge : pcurrNode->GetEdges()){
+        if (edge == pprevNode) {
+            continue;
+        } 
+        // std::cout<< "prev, curr, edge: " << pprevNode->GetIndex() << " " << pcurrNode->GetIndex() << " " << edge->GetIndex() <<std::endl;
+        UpdateComponentID(id, pcurrNode, edge);
+    }
+        
+}
+ 
+void Graph::AddEdge(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
+{
+    int id = node1SmartPtr->GetComponentID(); 
+    if (node1SmartPtr != node2SmartPtr){
+        node1SmartPtr->AddEdge(node2SmartPtr);
+        UpdateComponentID(id, node1SmartPtr, node2SmartPtr);
+
+        
+    }
+
+}
+
+
+    // if (node1SmartPtr != node2SmartPtr){
+    //     node1SmartPtr->AddEdge(node2SmartPtr);
+        
+    //     if (node2SmartPtr->GetEdges().size()!=0) {
+    //         UpdateComponentIDs(node1SmartPtr, node2SmartPtr);
+    //     } else {
+    //         node2SmartPtr->SetComponentID(node1SmartPtr->GetComponentID());
+    //     }
+
+    //     // std::cout<< "node1, idx: " << node1SmartPtr <<", "<<node1SmartPtr->GetIndex() << " node2: " << node2SmartPtr<<std::endl;
+    // }
+        // if (node2SmartPtr->GetEdges().size()==0) {
+        //     node2SmartPtr->SetComponentID(node1SmartPtr->GetComponentID());   
+        //     node1SmartPtr->AddEdge(node2SmartPtr);
+        // } else{
+        //     UpdateComponentIDs(node1SmartPtr, node2SmartPtr);
+        //     node1SmartPtr->AddEdge(node2SmartPtr);
+        // }
+
+
 
 /*
 bool Graph::IsSameComponent(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
@@ -34,38 +85,3 @@ bool Graph::IsSameComponent(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr
     return kruskal.AreSameConnected(mst, node1SmartPtr, node2SmartPtr);
 }
 */
-
-bool Graph::IsSameComponent(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
-{
-    // std::cout<<"node1: " << node1SmartPtr->GetComponentID() << " node2: " << node2SmartPtr->GetComponentID() <<std::endl;
-    
-    if(node1SmartPtr->GetComponentID() == node2SmartPtr->GetComponentID()){
-        // std::cout<<"ID Same" <<std::endl;
-        return true;
-    }
-    // std::cout<<"ID DIFFERENT" <<std::endl;
-    return false;
-}
-
-void UpdateComponentIDs(std::shared_ptr<Node>& node1SmartPtr, std::shared_ptr<Node> node2SmartPtr) {
-
-    if (node2SmartPtr == node2SmartPtr->GetEdge()){
-        std::cout << "ERROR: Node points to itself. Good luck!" << std::endl;
-    }
-    
-    if (node2SmartPtr->GetEdge() == nullptr) {
-        return;
-    }
-    // std::cout<< "update componentID" << std:: endl;
-    // std::cout<< node2SmartPtr<< " " << node2SmartPtr->GetEdge() << " : " <<node2SmartPtr.use_count() << std::endl;
-    node2SmartPtr->SetComponentID(node1SmartPtr->GetComponentID());
-    UpdateComponentIDs(node1SmartPtr, node2SmartPtr->GetEdge());
-}
-
-
-
-void Graph::AddEdge(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
-{
-    node1SmartPtr->SetEdge(node2SmartPtr);
-    UpdateComponentIDs(node1SmartPtr, node2SmartPtr);
-}

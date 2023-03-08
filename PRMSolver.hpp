@@ -7,18 +7,20 @@
 
 #include "NeighborCompare.hpp"
 #include "Graph.hpp"
+#include "Query.hpp"
 
 #define PI 3.141592654
 
-class PRMSolver{
+class PRMSolver
+{
 
     public:
         PRMSolver(double* map, int maxX, int maxY, double* startPos, double* goalPos, const int numOfDOFs, int numOfSamples, const double maxDist);
         ~PRMSolver();  
 
         std::unique_ptr<Graph> BuildRoadMap();
-        double* QueryRoadMap(std::unique_ptr<Graph>& pgraph);
-
+        // std::vector<std::vector<double>> QueryRoadMap(std::unique_ptr<Graph>& pgraph);
+        void QueryRoadMap(std::unique_ptr<Graph>& pgraph);
     private:
         double* mmap;
         int mmaxX;
@@ -35,6 +37,7 @@ class PRMSolver{
         std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> GetNearestNeighbor(std::shared_ptr<Node> node1SmartPtr, Graph* pgraph);
         bool IsConnect(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr);
         
+        std::shared_ptr<Node> GetClosestNode(std::unique_ptr<Graph>& pgraph, double* pose);
         //  SearchRoadMap();
         
 
