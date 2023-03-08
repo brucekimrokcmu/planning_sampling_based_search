@@ -99,21 +99,39 @@ std::unique_ptr<Graph> PRMSolver::BuildRoadMap()
         i++;
         // std::cout<<"i is: "<< i <<"\n" ;
         std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetNearestNeighbor(node1SmartPtr, graphSmartPtr.get());
-        if (neighbors.size() == 0){
-            continue;            
-        }
-
+        // std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetKNumberOfNeighbor(node1SmartPtr, graphSmartPtr.get());
+        
         while (!neighbors.empty()){
             const std::shared_ptr<Node>& neighborRef = neighbors.top();
             // std::cout<< node1SmartPtr << " " << neighborRef << std::endl;
             neighbors.pop();
+            int node1ID = node1SmartPtr->GetComponentID();
+            int neighborID = neighborRef->GetComponentID();
+
+            mcomponentMap[node1ID].push_back(node1SmartPtr);
             // std::cout << node1SmartPtr->GetComponentID()<< " " << neighborRef->GetComponentID()<<std::endl;;
             if((!graphSmartPtr->IsSameComponent(node1SmartPtr, neighborRef)) || IsConnect(node1SmartPtr, neighborRef)) {
-                graphSmartPtr->AddEdge(node1SmartPtr, neighborRef);
+                if (node1SmartPtr == neighborRef) {
+                    continue;
+                }
+                // graphSmartPtr->AddEdge(node1SmartPtr, neighborRef);                    
+                if (mcomponentMap[node1ID].size() >= mcomponentMap[neighborID].size()){
+                    node1SmartPtr->AddEdge(neighborRef);
+                    for (auto edge : neighborRef->GetEdges()){
+                        edge->SetComponentID(node1ID);
+                    }
+                    mcomponentMap.erase(neighborID);
+                } else {
+                    neighborRef->AddEdge(node1SmartPtr);
+                    for (auto edge : node1SmartPtr->GetEdges()){
+                        edge->SetComponentID(neighborID);
+                    } 
+                    mcomponentMap.erase(node1ID);
+                }
+                
             }
         } 
-        std::cout<< "node1's edgesize: " << node1SmartPtr->GetEdges().size() <<std::endl;
-
+        // std::cout<< "node1's edgesize: " << node1SmartPtr->GetEdges().size() <<std::endl;
         if (float(i)/float(mnumOfSamples) > progress)
         {
             // Progress achieved
@@ -162,7 +180,7 @@ std::shared_ptr<Node> PRMSolver::GetClosestNode(std::unique_ptr<Graph>& pgraph, 
                 continue;
             }
             // std::cout<<ppose.use_count()<<", " << pgraph->GetGraph()[i].use_count() << std::endl;;
-            printf("should connect?\n");
+            // printf("should connect?\n");
             // std::cout<<pgraph->GetGraph()[i]<<std::endl;
             neighbors.push_back(pgraph->GetGraph()[i]);                
             // std::cout<<"pushed to neighbor: "<<dist<<std::endl;
@@ -177,41 +195,22 @@ std::shared_ptr<Node> PRMSolver::GetClosestNode(std::unique_ptr<Graph>& pgraph, 
 }
 
 
-void PRMSolver::QueryRoadMap(std::unique_ptr<Graph>& pgraph)
+std::vector<std::vector<double>> PRMSolver::QueryRoadMap(std::unique_ptr<Graph>& pgraph)
 {
     Query query;
     std::vector<std::vector<double>> path;
-    std::cout<<"let's get closest startandgoal\n";
+
     std::shared_ptr<Node> pstart = GetClosestNode(pgraph, mstartPose);   
     std::shared_ptr<Node> pgoal = GetClosestNode(pgraph, mgoalPose);   
 
     pstart->SetGValue(0.0);   
     pstart->SetFValue(pstart->GetGValue());
-    // std::cout<<"start: "<<pstart<< " edge size " << pstart->GetEdges().size()<<std::endl;
-    std::cout<<"input goal:  "<<mgoalPose<<std::endl;
-    for (int i=0; i<mnumOfDOFs; i++){
-        std::cout<<mgoalPose[i] <<" ";
-    }
-    std::cout<<std::endl;
- 
-    std::cout<<"goal Node found:  "<<pgoal<< " idx: "<<pgoal->GetIndex() << " edgesize: "<<pgoal->GetEdges().size() <<std::endl;
-    for (int i=0; i<pgoal->GetJointPose().size(); i++){
-        std::cout<<pgoal->GetJointPose()[i] <<" ";
-    }
-    std::cout<<std::endl;
 
-    for (int i=0; i<pgraph->GetGraph().size();i++){
-        std::cout<< "edge size for node: "<< i << " : "<<pgraph->GetGraph()[i]->GetEdges().size()<<std::endl;
-    }
-
-
+    std::cout << "start id: " << pstart->GetIndex() << " goal id: " << pgoal->GetIndex() << std::endl;
 
     path = query.Dijkstra(pgraph, pstart, pgoal);
 
-    //Step1. connect double* mstartPose, double* mgoalPose into feasible vertices in graph
-
-    //Step2. Run Dijkstra -> return path 
-    
+    return path;
     
     
     

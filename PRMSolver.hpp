@@ -4,6 +4,7 @@
 #include <memory>
 #include <ostream>
 #include <queue>
+#include <vector>
 
 #include "NeighborCompare.hpp"
 #include "Graph.hpp"
@@ -20,7 +21,9 @@ class PRMSolver
 
         std::unique_ptr<Graph> BuildRoadMap();
         // std::vector<std::vector<double>> QueryRoadMap(std::unique_ptr<Graph>& pgraph);
-        void QueryRoadMap(std::unique_ptr<Graph>& pgraph);
+        std::vector<std::vector<double>> QueryRoadMap(std::unique_ptr<Graph>& pgraph);
+        std::unordered_map<int, std::vector<std::shared_ptr<Node>>> mcomponentMap;
+
     private:
         double* mmap;
         int mmaxX;
@@ -31,6 +34,7 @@ class PRMSolver
         int mnumOfSamples;
         // std::unordered_map<int, double> mheuristics;
         double mmaxDist;
+
         
         std::vector<double> SampleRandomVertex();
         double ComputeDistance(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr);

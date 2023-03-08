@@ -45,6 +45,7 @@ class Node{
         int midx; 
         std::vector<double> mvertex;
         std::vector<std::shared_ptr<Node>> mpedges;
+
         // bool mvisited;
         int mcomponentID;
         std::shared_ptr<Node> mpParent;

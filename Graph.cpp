@@ -40,48 +40,19 @@ void Graph::UpdateComponentID(int id, std::shared_ptr<Node> pprevNode, std::shar
         
 }
  
+// void Graph::AddEdge(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
+// {
+//     int id = node1SmartPtr->GetComponentID(); 
+//     if (node1SmartPtr != node2SmartPtr){
+//         node1SmartPtr->AddEdge(node2SmartPtr);
+//         UpdateComponentID(id, node1SmartPtr, node2SmartPtr);
+
+        
+//     }
+
+
 void Graph::AddEdge(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
 {
-    int id = node1SmartPtr->GetComponentID(); 
-    if (node1SmartPtr != node2SmartPtr){
-        node1SmartPtr->AddEdge(node2SmartPtr);
-        UpdateComponentID(id, node1SmartPtr, node2SmartPtr);
-
-        
-    }
+    node1SmartPtr->AddEdge(node2SmartPtr);
 
 }
-
-
-    // if (node1SmartPtr != node2SmartPtr){
-    //     node1SmartPtr->AddEdge(node2SmartPtr);
-        
-    //     if (node2SmartPtr->GetEdges().size()!=0) {
-    //         UpdateComponentIDs(node1SmartPtr, node2SmartPtr);
-    //     } else {
-    //         node2SmartPtr->SetComponentID(node1SmartPtr->GetComponentID());
-    //     }
-
-    //     // std::cout<< "node1, idx: " << node1SmartPtr <<", "<<node1SmartPtr->GetIndex() << " node2: " << node2SmartPtr<<std::endl;
-    // }
-        // if (node2SmartPtr->GetEdges().size()==0) {
-        //     node2SmartPtr->SetComponentID(node1SmartPtr->GetComponentID());   
-        //     node1SmartPtr->AddEdge(node2SmartPtr);
-        // } else{
-        //     UpdateComponentIDs(node1SmartPtr, node2SmartPtr);
-        //     node1SmartPtr->AddEdge(node2SmartPtr);
-        // }
-
-
-
-/*
-bool Graph::IsSameComponent(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
-{
-
-    // Run Kruskal algorithm to check if the nodes are connected
-    Kruskal kruskal(mgraph);    // Kruskal kruskal(nodes, edges);
-    std::vector<Edge> mst = kruskal.GetMST();    
-
-    return kruskal.AreSameConnected(mst, node1SmartPtr, node2SmartPtr);
-}
-*/
