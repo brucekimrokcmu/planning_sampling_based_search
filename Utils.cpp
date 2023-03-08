@@ -206,3 +206,39 @@ int IsValidArmConfiguration(double* angles, int numofDOFs, double*	map,
 }
 
 
+double** convert2DVectorTo2DArray(std::vector<std::vector<double>> vec)
+{
+
+    double* data = new double[vec.size() * vec[0].size()];
+
+    int k = 0;
+    for (int i = 0; i < vec.size(); i++) {
+        for (int j = 0; j < vec[0].size(); j++) {
+            data[k++] = vec[i][j];
+        }
+    }
+
+    double** array = new double*[vec.size()];
+    for (int i = 0; i < vec.size(); i++) {
+        array[i] = &data[i * vec[0].size()];
+    }
+
+    return array;
+}
+
+void deallocate2DArray(double** array)
+{
+    delete[] array[0];
+    delete[] array;
+}
+
+std::vector<double> convertToVector(double* arr, int size) {
+  std::vector<double> vec;
+  vec.reserve(size);
+
+  for (int i = 0; i < size; i++) {
+    vec.push_back(arr[i]);
+  }
+
+  return vec;
+}

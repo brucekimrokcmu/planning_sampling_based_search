@@ -63,88 +63,51 @@ static void planner(
             double*** plan,
             int* planlength)
 {
-
-// static void planner(
-// 			double* map,
-// 			int x_size,
-// 			int y_size,
-// 			double* armstart_anglesV_rad,
-// 			double* armgoal_anglesV_rad,
-//             int numofDOFs,
-//             std::vector<std::vector<double>> plan,
-//             int planlength)
-// {
 	//no plan by default
-
 	*plan = NULL;
 	*planlength = 0;
-
-	// std::vector<std::vector<double>> plan;
-	// int planlength = 0;
-	int numOfSamples = 2000;
-	const double MAXDIST_THRESHOLD = 2*PI/3;
+	std::vector<std::vector<double>> path;
+	int numOfSamples = 4000;
+	const double MAXDIST_THRESHOLD = PI;
 	// std::cout<<"Instantiating PRMSolver class"<<std::endl;
 	PRMSolver prm(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, numOfSamples, MAXDIST_THRESHOLD);
-	// std::cout<<"Calling BUildRoadMap function"<<std::endl;
+	std::cout<<"Calling BUildRoadMap function"<<std::endl;
 	std::unique_ptr<Graph> graphSmartPtr = prm.BuildRoadMap();
-	// prm.QueryRoadMap(graphSmartPtr);
-	plan = prm.QueryRoadMap(graphSmartPtr);
+	
+	std::cout<<"Query Starts"<<std::endl;
+	path = prm.QueryRoadMap(graphSmartPtr);
+
+	*plan = convert2DVectorTo2DArray(path);
 
 
-    double distance = 0;
-    int i,j;
-    for (j = 0; j < numofDOFs; j++){
-        if(distance < fabs(armstart_anglesV_rad[j] - armgoal_anglesV_rad[j]))
-            distance = fabs(armstart_anglesV_rad[j] - armgoal_anglesV_rad[j]);
-    }
-    int numofsamples = (int)(distance/(PI/20));
-    if(numofsamples < 2){
-        printf("The arm is already at the goal\n");
-        return;
-    }
-	int countNumInvalid = 0;
-    *plan = (double**) malloc(numofsamples*sizeof(double*));
-    for (i = 0; i < numofsamples; i++){
-        (*plan)[i] = (double*) malloc(numofDOFs*sizeof(double)); 
-        for(j = 0; j < numofDOFs; j++){
-            (*plan)[i][j] = armstart_anglesV_rad[j] + ((double)(i)/(numofsamples-1))*(armgoal_anglesV_rad[j] - armstart_anglesV_rad[j]);
-        }
-        if(!IsValidArmConfiguration((*plan)[i], numofDOFs, map, x_size, y_size)) {
-			++countNumInvalid;
-        }
-    }
-	printf("Linear interpolation collided at %d instances across the path\n", countNumInvalid);
-    *planlength = numofsamples;
+    // double distance = 0;
+    // int i,j;
+    // for (j = 0; j < numofDOFs; j++){
+    //     if(distance < fabs(armstart_anglesV_rad[j] - armgoal_anglesV_rad[j]))
+    //         distance = fabs(armstart_anglesV_rad[j] - armgoal_anglesV_rad[j]);
+    // }
+    // int numofsamples = (int)(distance/(PI/20));
+    // if(numofsamples < 2){
+    //     printf("The arm is already at the goal\n");
+    //     return;
+    // }
+	// int countNumInvalid = 0;
+    // *plan = (double**) malloc(numofsamples*sizeof(double*));
+    // for (i = 0; i < numofsamples; i++){
+    //     (*plan)[i] = (double*) malloc(numofDOFs*sizeof(double)); 
+    //     for(j = 0; j < numofDOFs; j++){
+    //         (*plan)[i][j] = armstart_anglesV_rad[j] + ((double)(i)/(numofsamples-1))*(armgoal_anglesV_rad[j] - armstart_anglesV_rad[j]);
+    //     }
+    //     if(!IsValidArmConfiguration((*plan)[i], numofDOFs, map, x_size, y_size)) {
+	// 		++countNumInvalid;
+    //     }
+    // }
+	// printf("Linear interpolation collided at %d instances across the path\n", countNumInvalid);
+    // *planlength = numofsamples;
+
+	*planlength = path.size();
 
 
-/*
-    //for now just do straight interpolation between start and goal checking for the validity of samples
-
-    double distance = 0;
-    int i,j;
-    for (j = 0; j < numofDOFs; j++){
-        if(distance < fabs(armstart_anglesV_rad[j] - armgoal_anglesV_rad[j]))
-            distance = fabs(armstart_anglesV_rad[j] - armgoal_anglesV_rad[j]);
-    }
-    int numofsamples = (int)(distance/(PI/20));
-    if(numofsamples < 2){
-        printf("The arm is already at the goal\n");
-        return;
-    }
-	int countNumInvalid = 0;
-    *plan = (double**) malloc(numofsamples*sizeof(double*));
-    for (i = 0; i < numofsamples; i++){
-        (*plan)[i] = (double*) malloc(numofDOFs*sizeof(double)); 
-        for(j = 0; j < numofDOFs; j++){
-            (*plan)[i][j] = armstart_anglesV_rad[j] + ((double)(i)/(numofsamples-1))*(armgoal_anglesV_rad[j] - armstart_anglesV_rad[j]);
-        }
-        if(!IsValidArmConfiguration((*plan)[i], numofDOFs, map, x_size, y_size)) {
-			++countNumInvalid;
-        }
-    }
-	printf("Linear interpolation collided at %d instances across the path\n", countNumInvalid);
-    *planlength = numofsamples;
-*/ 
     return;
 }
 
@@ -178,7 +141,7 @@ int main(int argc, char** argv) {
 
 	///////////////////////////////////////
 	//// Feel free to modify anything below. Be careful modifying anything above.
-	
+
 	double** plan = NULL; 	
 	int planlength = 0;
 	planner(map, x_size, y_size, startPos, goalPos, numOfDOFs, &plan, &planlength);	

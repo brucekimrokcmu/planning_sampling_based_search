@@ -179,17 +179,11 @@ std::shared_ptr<Node> PRMSolver::GetClosestNode(std::unique_ptr<Graph>& pgraph, 
             if (pgraph->GetGraph()[i]->GetEdges().size() == 0) {
                 continue;
             }
-            // std::cout<<ppose.use_count()<<", " << pgraph->GetGraph()[i].use_count() << std::endl;;
-            // printf("should connect?\n");
-            // std::cout<<pgraph->GetGraph()[i]<<std::endl;
+
             neighbors.push_back(pgraph->GetGraph()[i]);                
-            // std::cout<<"pushed to neighbor: "<<dist<<std::endl;
+
         }
     }
-    // std::sort(neighbors.begin(), neighbors.end());
-    // for (int i=0; i<neighbors.size();i++){
-    //     std::cout<< neighbors[i] << " ";
-    // }
 
     return neighbors[0];
 }
@@ -199,7 +193,6 @@ std::vector<std::vector<double>> PRMSolver::QueryRoadMap(std::unique_ptr<Graph>&
 {
     Query query;
     std::vector<std::vector<double>> path;
-
     std::shared_ptr<Node> pstart = GetClosestNode(pgraph, mstartPose);   
     std::shared_ptr<Node> pgoal = GetClosestNode(pgraph, mgoalPose);   
 
@@ -209,6 +202,22 @@ std::vector<std::vector<double>> PRMSolver::QueryRoadMap(std::unique_ptr<Graph>&
     std::cout << "start id: " << pstart->GetIndex() << " goal id: " << pgoal->GetIndex() << std::endl;
 
     path = query.Dijkstra(pgraph, pstart, pgoal);
+
+
+    std::vector<double> mstartPoseVector = convertToVector(mstartPose, mnumOfDOFs);
+    std::vector<double> mgoalPoseVector = convertToVector(mgoalPose, mnumOfDOFs);
+    
+    path.insert(path.begin(), mstartPoseVector);
+    path.insert(path.end(), mgoalPoseVector);
+
+    std::cout<< "path size: "<<path.size()<<std::endl;
+
+    for (int i=0; i<path.size(); i++){
+        for (int j=0; j<path[i].size();j++){
+            std:cout<<path[i][j]<<" ";
+        }
+        std::cout<<std::endl;
+    }
 
     return path;
     

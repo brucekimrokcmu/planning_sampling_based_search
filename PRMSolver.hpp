@@ -1,9 +1,10 @@
 #pragma once
-// #include "AStarPlanner.hpp"
+
 #include <algorithm>
 #include <memory>
 #include <ostream>
 #include <queue>
+#include <unordered_map>
 #include <vector>
 
 #include "NeighborCompare.hpp"

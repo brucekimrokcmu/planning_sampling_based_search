@@ -92,3 +92,10 @@ int IsValidLineSegment(double x0, double y0, double x1, double y1, double*	map,
 int IsValidArmConfiguration(double* angles, int numofDOFs, double*	map,
 			 int x_size, int y_size);
 
+double** convert2DVectorTo2DArray(std::vector<std::vector<double>> vec);
+
+void deallocate2DArray(double** array);
+
+#include <vector>
+
+std::vector<double> convertToVector(double* arr, int size); 
