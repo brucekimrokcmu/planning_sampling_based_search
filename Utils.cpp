@@ -242,3 +242,19 @@ std::vector<double> convertToVector(double* arr, int size) {
 
   return vec;
 }
+
+void printVertex(double* q, int numOfDOF)
+{
+	for (int i=0; i<numOfDOF;i++){
+            std::cout << q[i] << " ";
+        }
+        std::cout << std::endl;
+}
+
+void printVector(std::vector<double> q_vector, int numOfDOF)
+{
+	for (int i=0; i<numOfDOF;i++){
+		std::cout << (double)q_vector[i] << " ";
+	}
+	std::cout << std::endl;
+}

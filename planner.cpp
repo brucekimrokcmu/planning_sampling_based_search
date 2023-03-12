@@ -20,6 +20,7 @@
 
 /* Include custom classes */
 #include "PRMSolver.hpp"
+#include "RRTSolver.hpp"
 #include "Utils.hpp"
 
 /* Input Arguments */
@@ -62,52 +63,48 @@ static void planner(
             int numofDOFs,
             double*** plan,
             int* planlength)
+//// PRM
+// {
+// 	//no plan by default
+// 	*plan = NULL;
+// 	*planlength = 0;
+// 	std::vector<std::vector<double>> path;
+// 	int numOfSamples = 5000;
+// 	const double MAXDIST_THRESHOLD = PI;
+// 	// std::cout<<"Instantiating PRMSolver class"<<std::endl;
+// 	PRMSolver prm(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, numOfSamples, MAXDIST_THRESHOLD);
+// 	std::cout<<"Calling BUildRoadMap function"<<std::endl;
+// 	std::unique_ptr<Graph> graphSmartPtr = prm.InitializeGraph();
+// 	prm.BuildRoadMap(graphSmartPtr);
+	
+// 	std::cout<<"Query Starts"<<std::endl;
+// 	path = prm.QueryRoadMap(graphSmartPtr);
+
+// 	*plan = convert2DVectorTo2DArray(path);
+// 	*planlength = path.size();
+
+
+//     return;
+// }
+
+//// RRT
 {
 	//no plan by default
 	*plan = NULL;
 	*planlength = 0;
 	std::vector<std::vector<double>> path;
-	int numOfSamples = 5000;
-	const double MAXDIST_THRESHOLD = PI;
-	// std::cout<<"Instantiating PRMSolver class"<<std::endl;
-	PRMSolver prm(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, numOfSamples, MAXDIST_THRESHOLD);
-	std::cout<<"Calling BUildRoadMap function"<<std::endl;
-	std::unique_ptr<Graph> graphSmartPtr = prm.InitializeGraph();
-	prm.BuildRoadMap(graphSmartPtr);
-	
-	std::cout<<"Query Starts"<<std::endl;
-	path = prm.QueryRoadMap(graphSmartPtr);
+	const double eps = 0.2*PI;
+	const double stepIters = 50;
+	const double goalTol = PI;
+	const int maxIters = 100000;
 
+	// RRTSolver::RRTSolver(double* map, int maxX, int maxY, double* startPos, double* goalPos, const int numOfDOFs, double eps, double goalTol, int maxIters)
+	RRTSolver rrt(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, eps, stepIters, goalTol, maxIters);
+	Tree tree = rrt.BuildRRT();
+	path = tree.GetPath(tree.GetTree().back());
+		
 	*plan = convert2DVectorTo2DArray(path);
-
-
-    // double distance = 0;
-    // int i,j;
-    // for (j = 0; j < numofDOFs; j++){
-    //     if(distance < fabs(armstart_anglesV_rad[j] - armgoal_anglesV_rad[j]))
-    //         distance = fabs(armstart_anglesV_rad[j] - armgoal_anglesV_rad[j]);
-    // }
-    // int numofsamples = (int)(distance/(PI/20));
-    // if(numofsamples < 2){
-    //     printf("The arm is already at the goal\n");
-    //     return;
-    // }
-	// int countNumInvalid = 0;
-    // *plan = (double**) malloc(numofsamples*sizeof(double*));
-    // for (i = 0; i < numofsamples; i++){
-    //     (*plan)[i] = (double*) malloc(numofDOFs*sizeof(double)); 
-    //     for(j = 0; j < numofDOFs; j++){
-    //         (*plan)[i][j] = armstart_anglesV_rad[j] + ((double)(i)/(numofsamples-1))*(armgoal_anglesV_rad[j] - armstart_anglesV_rad[j]);
-    //     }
-    //     if(!IsValidArmConfiguration((*plan)[i], numofDOFs, map, x_size, y_size)) {
-	// 		++countNumInvalid;
-    //     }
-    // }
-	// printf("Linear interpolation collided at %d instances across the path\n", countNumInvalid);
-    // *planlength = numofsamples;
-
 	*planlength = path.size();
-
 
     return;
 }
@@ -124,6 +121,7 @@ static void planner(
  * make sure it can run with the original 6 commands.
  * Programs that do not will automatically get a 0.
  * */
+
 int main(int argc, char** argv) {
 	double* map;
 	int x_size, y_size;

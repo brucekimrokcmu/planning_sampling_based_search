@@ -56,6 +56,7 @@ std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, N
 
 std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> PRMSolver::GetKNumberOfNeighbor(std::shared_ptr<Node> node1SmartPtr, Graph* pgraph)
 {
+    std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> totalNeighbors;
     std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors;
     double dist;
 
@@ -63,10 +64,16 @@ std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, N
         dist = ComputeDistance(node1SmartPtr, pgraph->GetGraph()[i]);
         
         pgraph->GetGraph()[i]->SetTempDist(dist);
-        neighbors.push(pgraph->GetGraph()[i]);
-            // std::cout<<"Added! dist: " << dist << " maxDist: "<< mmaxDist <<std::endl;
-        
+        totalNeighbors.push(pgraph->GetGraph()[i]);
+            // std::cout<<"Added! dist: " << dist << " maxDist: "<< mmaxDist <<std::endl;   
     }
+
+    const int K_THRESHOLD = mnumOfSamples*0.01;
+    for (int k=0; k<K_THRESHOLD; k++){
+        neighbors.push(totalNeighbors.top());
+        totalNeighbors.pop();
+    }
+
 
     return neighbors; 
 
@@ -142,12 +149,12 @@ void PRMSolver::BuildRoadMap(std::unique_ptr<Graph>& pgraph)
         std::shared_ptr<Node> node1SmartPtr = pgraph->GetGraph()[i];
         // std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetNearestNeighbor(node1SmartPtr, pgraph.get());
         std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetKNumberOfNeighbor(node1SmartPtr, pgraph.get());
-        int K_THRESHOLD = 10;
-        int K_NEIGHBOR = 0;
-        // while (!neighbors.empty()) {
-        while (K_NEIGHBOR < K_THRESHOLD) {
+
+
+        while (!neighbors.empty()) {
+        // while (k < K_THRESHOLD) {
             const std::shared_ptr<Node>& neighborRef = neighbors.top();
-            // std::cout<< node1SmartPtr << " " << neighborRef << std::endl;
+
             neighbors.pop();
             int node1ID = node1SmartPtr->GetComponentID();
             int neighborID = neighborRef->GetComponentID();
@@ -172,7 +179,7 @@ void PRMSolver::BuildRoadMap(std::unique_ptr<Graph>& pgraph)
                     } 
                     mcomponentMap.erase(node1ID);
                 }
-                K_NEIGHBOR++;
+                
             }
         } 
         // std::cout<< "node1's edgesize: " << node1SmartPtr->GetEdges().size() <<std::endl;
@@ -246,7 +253,6 @@ std::vector<std::vector<double>> PRMSolver::QueryRoadMap(std::unique_ptr<Graph>&
     std::cout << "start id: " << pstart->GetIndex() << " goal id: " << pgoal->GetIndex() << std::endl;
 
     path = query.Dijkstra(pgraph, pstart, pgoal);
-
 
     std::vector<double> mstartPoseVector = convertToVector(mstartPose, mnumOfDOFs);
     std::vector<double> mgoalPoseVector = convertToVector(mgoalPose, mnumOfDOFs);

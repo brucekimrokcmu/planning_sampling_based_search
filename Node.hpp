@@ -17,7 +17,7 @@ class Node{
 
         std::vector<std::shared_ptr<Node>> GetEdges() const {return mpedges;};
 
-        void  AddEdge(std::shared_ptr<Node> edge) {mpedges.push_back(edge);};
+        void AddEdge(std::shared_ptr<Node> edge) {mpedges.push_back(edge);};
 
         // bool IsVisited() {return mvisited;};
         // void SetVisited(bool val) { mvisited=val; };

@@ -1,6 +1,6 @@
 #pragma once
 #include "Node.hpp"
-#include "nanoflann/include/nanoflann.hpp"
+// #include "nanoflann/include/nanoflann.hpp"
 #include <memory>
 #include <random>
 #include <vector>
@@ -10,9 +10,10 @@ class Tree
 {
     public:
         Tree() {};
-        Tree(std::shared_ptr<Node> root) 
-        : mroot(root) 
+
+        void SetRoot(double* startPose, int numOfDOF) 
         {
+            std::shared_ptr<Node> root = std::make_shared<Node> (-1, convertToVector(startPose, numOfDOF));
             mtree.push_back(root);
         }
 
@@ -47,6 +48,7 @@ class Tree
         {
             std::shared_ptr<Node> nearestNode;
             double minDist = std::numeric_limits<double>::infinity();
+            
             for (const auto& node : mtree) {
                 double dist = ComputeDistance(qRand, node);
                 if (dist < minDist) {
@@ -72,12 +74,11 @@ class Tree
             return path;
         }
 
-    private:
-        
+    private:        
         std::shared_ptr<Node> mroot;
         std::vector<std::shared_ptr<Node>> mtree;
     
-}
+};
 
 
 
