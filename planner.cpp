@@ -95,14 +95,16 @@ static void planner(
 	std::vector<std::vector<double>> path;
 	const double eps = 0.2*PI;
 	const double stepIters = 50;
-	const double goalTol = PI;
-	const int maxIters = 100000;
+	const double goalTol = 1.0;
+	const int maxIters = 10000;
 
 	// RRTSolver::RRTSolver(double* map, int maxX, int maxY, double* startPos, double* goalPos, const int numOfDOFs, double eps, double goalTol, int maxIters)
 	RRTSolver rrt(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, eps, stepIters, goalTol, maxIters);
-	Tree tree = rrt.BuildRRT();
-	path = tree.GetPath(tree.GetTree().back());
-		
+	Tree mmyTree = rrt.BuildRRT();
+	std::cout<<"Tree size: " << mmyTree.GetTree().size() << std::endl; //TOO SMALL!
+	
+	path = mmyTree.GetPath(mmyTree.GetTree().back());
+
 	*plan = convert2DVectorTo2DArray(path);
 	*planlength = path.size();
 

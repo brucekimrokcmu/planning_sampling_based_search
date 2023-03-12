@@ -63,16 +63,27 @@ class Tree
         std::vector<std::vector<double>> GetPath(std::shared_ptr<Node> pgoal) const 
         {
             std::vector<std::vector<double>> path;
-
             path.push_back(pgoal->GetJointPose());
+            //////////            
+            printf("input goal node: ");
+            printVector(pgoal->GetJointPose(), pgoal->GetJointPose().size());
+            ///////////
             std::shared_ptr<Node> pparent = pgoal->GetParent();
             while (pparent != nullptr) {
+                ////////////
+                std::cout<< pparent << " pose: ";
+                printVector(pparent->GetJointPose(), pparent->GetJointPose().size());
+                printf("\n");
+                ///////////
+                
                 path.push_back(pparent->GetJointPose());
                 pparent = pparent->GetParent();
             }
             std::reverse(path.begin(), path.end());
+            
             return path;
         }
+
 
     private:        
         std::shared_ptr<Node> mroot;

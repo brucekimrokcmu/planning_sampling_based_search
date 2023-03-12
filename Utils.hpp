@@ -101,3 +101,4 @@ std::vector<double> convertToVector(double* arr, int size);
 void printVertex(double* q, int numOfDOF);
 
 void printVector(std::vector<double> q_vector, int numOfDOF);
+

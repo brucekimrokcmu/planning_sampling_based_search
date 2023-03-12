@@ -258,3 +258,4 @@ void printVector(std::vector<double> q_vector, int numOfDOF)
 	}
 	std::cout << std::endl;
 }
+
