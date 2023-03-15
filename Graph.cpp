@@ -39,17 +39,6 @@ void Graph::UpdateComponentID(int id, std::shared_ptr<Node> pprevNode, std::shar
     }
         
 }
- 
-// void Graph::AddEdge(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
-// {
-//     int id = node1SmartPtr->GetComponentID(); 
-//     if (node1SmartPtr != node2SmartPtr){
-//         node1SmartPtr->AddEdge(node2SmartPtr);
-//         UpdateComponentID(id, node1SmartPtr, node2SmartPtr);
-
-        
-//     }
-
 
 void Graph::AddEdge(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr)
 {

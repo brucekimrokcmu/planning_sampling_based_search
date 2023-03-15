@@ -25,6 +25,15 @@ class Tree
 
         std::vector<std::shared_ptr<Node>> GetTree() const { return mtree; }
 
+        double ComputeDistance(const std::shared_ptr<Node> qRand, const std::shared_ptr<Node> pnode) const 
+        {
+            double dist = 0;
+            for (int i=0; i<qRand->GetJointPose().size(); i++){
+                dist += (qRand->GetJointPose()[i] - pnode->GetJointPose()[i]) * (qRand->GetJointPose()[i] - pnode->GetJointPose()[i]);
+            }
+            return std::sqrt(dist);
+        }
+        
         double ComputeDistance(const std::vector<double> qRand, const std::shared_ptr<Node> pnode) const 
         {
             double dist = 0;

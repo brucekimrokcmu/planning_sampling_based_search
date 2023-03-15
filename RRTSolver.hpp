@@ -21,15 +21,30 @@ class RRTSolver
 
         std::vector<double> SampleRandomVertex(std::random_device& rd);
         Tree BuildRRT();
-        // Tree BuildRRTConnect();
+        std::vector<std::vector<double>> BuildRRTConnect();
+        Tree BuildRRTStar();
+        State ExtendAndRewire(Tree& tree, const std::vector<double>& qRand);
+
+        // std::vector<double> GetNearest(Tree& tree, const std::vector<double>& qRand);
+        bool IsObstacleFree(const std::shared_ptr<Node> qStartNode, const std::shared_ptr<Node> qEndNode);
+        std::vector<std::shared_ptr<Node>> GetNear(Tree& tree, const std::shared_ptr<Node> qNewNode);
+        double GetLineCost(const std::shared_ptr<Node> qNode1, const std::shared_ptr<Node> qNode2);
+
+
         std::pair<State, std::vector<double>> CheckNewConfig(const std::vector<double>& qRand, const std::shared_ptr<Node> qNearNode);
+        State ExtendTree(Tree& tree, const std::vector<double>& qRand);
+        State ConnectTree(Tree& tree, const std::vector<double>& qNew);
         // State ExtendTree(const std::vector<double>& qRand, double goalTol, int maxIters);
-        State ExtendTree(Tree& tree, const std::vector<double>& qRand, double goalTol, int maxIters);
-        bool checkGoal(std::vector<double> qNew);
+        void SwapTree(Tree& tree1, Tree& tree2);
+        bool CheckGoal(std::vector<double> qNew);
+        std::vector<std::vector<double>> GetRRTConnectPath(Tree& tree1, Tree& tree2);
+
+        
 
     private:
         Tree mmyTree;
         Tree mmyTree2;
+
         double* mmap;
         int mmaxX;
         int mmaxY;
