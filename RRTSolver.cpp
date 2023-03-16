@@ -104,14 +104,15 @@ Tree RRTSolver::BuildRRTStar()
 
 bool RRTSolver::IsObstacleFree(const std::shared_ptr<Node> qStartNode, const std::shared_ptr<Node> qEndNode)
 {
-    std::vector<double> q; 
+    std::vector<double> q(mnumOfDOFs); 
     int t=0;
     while(t<mstepIters) {
         for (int i = 0; i < mnumOfDOFs; i++){
             q[i] = qStartNode->GetJointPose()[i] + ((t)/(mstepIters-1))*(qEndNode->GetJointPose()[i] - qStartNode->GetJointPose()[i]);
+    
         }
         if(!IsValidArmConfiguration(q.data(), mnumOfDOFs, mmap, mmaxX, mmaxY)) {
-                return false;
+            return false;
         }
         t++;
     }
@@ -158,13 +159,10 @@ State RRTSolver::ExtendAndRewire(Tree& tree, const std::vector<double>& qRand)
         return State::TRAPPED;
     } 
     std::vector<double> qNew = qNewConfig.second;
-
     //IsObstacleFree <-- already checked Positive in CheckNewConfig()
     std::shared_ptr<Node> qNewNode = std::make_shared<Node>(tree.GetTree().size(), qNewConfig.second);        
-    
     tree.AddNode(qNewNode);
     std::vector<std::shared_ptr<Node>> qNearNodes = GetNear(tree, qNewNode);    
-    
     std::vector<double> qMin = qNearestNode->GetJointPose();
     int qMinIdx;
     for (auto& qNearNode: qNearNodes) {
@@ -173,14 +171,16 @@ State RRTSolver::ExtendAndRewire(Tree& tree, const std::vector<double>& qRand)
             qNewNode->SetGValue(cost);
             qNewNode->SetFValue(qNewNode->GetGValue());
             if (cost < qNewNode->GetFValue()){
+                printf("10\n");
                 qMin = qNearNode->GetJointPose();
                 qMinIdx = qNearNode->GetIndex();
             }
         }
+
     }
     //Line#13
     qNewNode->SetParent(tree.GetTree()[qMinIdx]); // This is how I understand adding edge. but let's keep see how the rest of the algorithm is like
-
+    
     for(auto& qNearNode: qNearNodes){
         if (qNearNode->GetIndex() == qMinIdx) {
             continue;

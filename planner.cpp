@@ -156,16 +156,19 @@ static void planner(
 	RRTSolver rrt(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, eps, stepIters, goalTol, maxIters);
 	Tree myRRTStarTree = rrt.BuildRRTStar();	
 
-	for (auto& p : path){
-		for (int i=0; i<p.size(); i++){
-			std::cout<< p[i]<<" ";
-		}
-		printf("\n");
-	}
 
 	std::cout<<"Tree size: " << myRRTStarTree.GetTree().size() << std::endl; //TOO SMALL!
 	
 	path = myRRTStarTree.GetPath(myRRTStarTree.GetTree().back());
+
+	for (auto& p : path){
+		for (int i=0; i<p.size(); i++){
+			std::cout<< p[i]<<" ";
+		}
+		std::cout<< "path size: " << path.size() << std::endl;
+	}
+
+	path.push_back(convertToVector(armgoal_anglesV_rad, numofDOFs));	
 
 	*plan = convert2DVectorTo2DArray(path);
 	*planlength = path.size();
