@@ -62,120 +62,115 @@ static void planner(
 			double* armgoal_anglesV_rad,
             int numofDOFs,
             double*** plan,
-            int* planlength)
-// // PRM
-// {
-// 	//no plan by default
-// 	*plan = NULL;
-// 	*planlength = 0;
-// 	std::vector<std::vector<double>> path;
-// 	int numOfSamples = 5000;
-// 	const double MAXDIST_THRESHOLD = PI;
-// 	// std::cout<<"Instantiating PRMSolver class"<<std::endl;
-// 	PRMSolver prm(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, numOfSamples, MAXDIST_THRESHOLD);
-// 	std::cout<<"Calling BUildRoadMap function"<<std::endl;
-// 	std::unique_ptr<Graph> graphSmartPtr = prm.InitializeGraph();
-// 	prm.BuildRoadMap(graphSmartPtr);
-	
-// 	std::cout<<"Query Starts"<<std::endl;
-// 	path = prm.QueryRoadMap(graphSmartPtr);
+            int* planlength,
+			int whichPlanner)
 
-// 	*plan = convert2DVectorTo2DArray(path);
-// 	*planlength = path.size();
-
-
-//     return;
-// }
-
-// //// RRT
-// {
-// 	//no plan by default
-// 	*plan = NULL;
-// 	*planlength = 0;
-// 	std::vector<std::vector<double>> path;
-// 	const double eps = 0.2*PI;
-// 	const double stepIters = 50;
-// 	const double goalTol = 1.0;
-// 	const int maxIters = 10000;
-
-// 	// RRTSolver::RRTSolver(double* map, int maxX, int maxY, double* startPos, double* goalPos, const int numOfDOFs, double eps, double goalTol, int maxIters)
-// 	RRTSolver rrt(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, eps, stepIters, goalTol, maxIters);
-// 	Tree mmyTree = rrt.BuildRRT();
-// 	std::cout<<"Tree size: " << mmyTree.GetTree().size() << std::endl; //TOO SMALL!
-	
-// 	path = mmyTree.GetPath(mmyTree.GetTree().back());
-
-// 	*plan = convert2DVectorTo2DArray(path);
-// 	*planlength = path.size();
-
-//     return;
-// }
-
-// /// RRTCONNECT
-// {
-// 	//no plan by default
-// 	*plan = NULL;
-// 	*planlength = 0;
-// 	std::vector<std::vector<double>> path;
-// 	const double eps = 0.2;
-// 	const double stepIters = 20000;
-// 	const double goalTol = 0.001;
-// 	const int maxIters = 40000;
-
-// 	// RRTSolver::RRTSolver(double* map, int maxX, int maxY, double* startPos, double* goalPos, const int numOfDOFs, double eps, double goalTol, int maxIters)
-// 	RRTSolver rrt(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, eps, stepIters, goalTol, maxIters);
-// 	path = rrt.BuildRRTConnect();	
-
-// 	for (auto& p : path){
-// 		for (int i=0; i<p.size(); i++){
-// 			std::cout<< p[i]<<" ";
-// 		}
-// 		printf("\n");
-// 	}
-
-// 	*plan = convert2DVectorTo2DArray(path);
-// 	*planlength = path.size();
-
-//     return;
-
-// }
-
-/// RRT*
 {
 	//no plan by default
 	*plan = NULL;
 	*planlength = 0;
-	std::vector<std::vector<double>> path;
-	const double eps = 0.2;
-	const double stepIters = 50;
-	const double goalTol = 1.0;
-	const int maxIters = 1000;
 
+	if (whichPlanner == 0) { //RRT
+		std::vector<std::vector<double>> path;
+		const double eps = 0.3*PI;
+		const double stepIters = 50;
+		const double goalTol = 1.7;
+		const int maxIters = 10000;
 
-	// RRTSolver::RRTSolver(double* map, int maxX, int maxY, double* startPos, double* goalPos, const int numOfDOFs, double eps, double goalTol, int maxIters)
-	RRTSolver rrt(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, eps, stepIters, goalTol, maxIters);
-	Tree myRRTStarTree = rrt.BuildRRTStar();	
+		// RRTSolver::RRTSolver(double* map, int maxX, int maxY, double* startPos, double* goalPos, const int numOfDOFs, double eps, double goalTol, int maxIters)
+		RRTSolver rrt(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, eps, stepIters, goalTol, maxIters);
+		Tree mmyTree = rrt.BuildRRT();
+		std::cout<<"Tree size: " << mmyTree.GetTree().size() << std::endl; //TOO SMALL!
+		
+		path = mmyTree.GetPath(mmyTree.GetTree().back());
 
+		*plan = convert2DVectorTo2DArray(path);
+		*planlength = path.size();
 
-	std::cout<<"Tree size: " << myRRTStarTree.GetTree().size() << std::endl; //TOO SMALL!
-	
-	path = myRRTStarTree.GetPath(myRRTStarTree.GetTree().back());
-
-	for (auto& p : path){
-		for (int i=0; i<p.size(); i++){
-			std::cout<< p[i]<<" ";
-		}
-		std::cout<< "path size: " << path.size() << std::endl;
+		return;
+		
 	}
 
-	path.push_back(convertToVector(armgoal_anglesV_rad, numofDOFs));	
+	if (whichPlanner == 1){ //RRT-Connect
+		std::vector<std::vector<double>> path;
+		const double eps = 0.2;
+		const double stepIters = 20000;
+		const double goalTol = 0.001;
+		const int maxIters = 40000;
+
+		// RRTSolver::RRTSolver(double* map, int maxX, int maxY, double* startPos, double* goalPos, const int numOfDOFs, double eps, double goalTol, int maxIters)
+		RRTSolver rrt(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, eps, stepIters, goalTol, maxIters);
+		path = rrt.BuildRRTConnect();	
+
+		// for (auto& p : path){
+		// 	for (int i=0; i<p.size(); i++){
+		// 		std::cout<< p[i]<<" ";
+		// 	}
+		// 	printf("\n");
+		// }
+
+		*plan = convert2DVectorTo2DArray(path);
+		*planlength = path.size();
+
+	    return;
+	}
+
+	if (whichPlanner == 2){ // RRT*
+		std::vector<std::vector<double>> path;
+		const double eps = 0.3*PI;
+		const double stepIters = 50;
+		const double goalTol = 1.5;
+		const int maxIters = 1000;
+
+
+		// RRTSolver::RRTSolver(double* map, int maxX, int maxY, double* startPos, double* goalPos, const int numOfDOFs, double eps, double goalTol, int maxIters)
+		RRTSolver rrt(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, eps, stepIters, goalTol, maxIters);
+		Tree myRRTStarTree = rrt.BuildRRTStar();	
+
+
+		std::cout<<"Tree size: " << myRRTStarTree.GetTree().size() << std::endl; //TOO SMALL!
+		
+		path = myRRTStarTree.GetPath(myRRTStarTree.GetTree().back());
+
+		// for (auto& p : path){
+		// 	for (int i=0; i<p.size(); i++){
+		// 		std::cout<< p[i]<<" ";
+		// 	}
+		// 	std::cout<< "path size: " << path.size() << std::endl;
+		// }
+
+		path.push_back(convertToVector(armgoal_anglesV_rad, numofDOFs));	
+
+		*plan = convert2DVectorTo2DArray(path);
+		*planlength = path.size();
+
+    return;
+	}
+
+	if (whichPlanner == 3){ //PRM
+		std::vector<std::vector<double>> path;
+		int numOfSamples = 1000;
+		const double MAXDIST_THRESHOLD = PI;
+		// std::cout<<"Instantiating PRMSolver class"<<std::endl;
+		PRMSolver prm(map, x_size, y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, numOfSamples, MAXDIST_THRESHOLD);
+		std::cout<<"Calling BUildRoadMap function"<<std::endl;
+		std::unique_ptr<Graph> graphSmartPtr = prm.InitializeGraph();
+		prm.BuildRoadMap(graphSmartPtr);
+		
+		std::cout<<"Query Starts"<<std::endl;
+		path = prm.QueryRoadMap(graphSmartPtr);
+	
+
 
 	*plan = convert2DVectorTo2DArray(path);
 	*planlength = path.size();
 
     return;
+	}
 
 }
+
+
 
 /** Your final solution will be graded by an grading script which will
  * send the default 6 arguments:
@@ -210,7 +205,7 @@ int main(int argc, char** argv) {
 
 	double** plan = NULL; 	
 	int planlength = 0;
-	planner(map, x_size, y_size, startPos, goalPos, numOfDOFs, &plan, &planlength);	
+	planner(map, x_size, y_size, startPos, goalPos, numOfDOFs, &plan, &planlength, whichPlanner);	
 	
 
 	// std::vector<std::vector<double>> plan;

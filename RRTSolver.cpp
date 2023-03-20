@@ -60,8 +60,6 @@ std::vector<std::vector<double>> RRTSolver::BuildRRTConnect()
             std::vector<double> qNew = tree1.GetTree().back()->GetJointPose();
             State connectState = ConnectTree(tree2, qNew);
 
-            //no need to have a goal region... how do I modify extend tree function?
-
             if (connectState == State::REACHED) {
                 std::cout<< "Return tree"  << std::endl;
                 path = GetRRTConnectPath(tree1, tree2);
@@ -109,8 +107,8 @@ bool RRTSolver::IsObstacleFree(const std::shared_ptr<Node> qStartNode, const std
     while(t<mstepIters) {
         for (int i = 0; i < mnumOfDOFs; i++){
             q[i] = qStartNode->GetJointPose()[i] + ((t)/(mstepIters-1))*(qEndNode->GetJointPose()[i] - qStartNode->GetJointPose()[i]);
-    
         }
+        
         if(!IsValidArmConfiguration(q.data(), mnumOfDOFs, mmap, mmaxX, mmaxY)) {
             return false;
         }
@@ -141,11 +139,11 @@ std::vector<std::shared_ptr<Node>> RRTSolver::GetNear(Tree& tree, const std::sha
 
 double RRTSolver::GetLineCost(const std::shared_ptr<Node> qNode1, const std::shared_ptr<Node> qNode2)
 {
-    // cost is simply a euclidean distance
     double dist = 0;
     for (int i=0; i<qNode1->GetJointPose().size(); i++){
         dist += (qNode1->GetJointPose()[i] - qNode2->GetJointPose()[i]) * (qNode1->GetJointPose()[i] - qNode2->GetJointPose()[i]);
-    }
+    }     // cost is simply a euclidean distance
+
     return std::sqrt(dist);
 
 }
@@ -159,7 +157,7 @@ State RRTSolver::ExtendAndRewire(Tree& tree, const std::vector<double>& qRand)
         return State::TRAPPED;
     } 
     std::vector<double> qNew = qNewConfig.second;
-    //IsObstacleFree <-- already checked Positive in CheckNewConfig()
+
     std::shared_ptr<Node> qNewNode = std::make_shared<Node>(tree.GetTree().size(), qNewConfig.second);        
     tree.AddNode(qNewNode);
     std::vector<std::shared_ptr<Node>> qNearNodes = GetNear(tree, qNewNode);    
@@ -171,15 +169,14 @@ State RRTSolver::ExtendAndRewire(Tree& tree, const std::vector<double>& qRand)
             qNewNode->SetGValue(cost);
             qNewNode->SetFValue(qNewNode->GetGValue());
             if (cost < qNewNode->GetFValue()){
-                printf("10\n");
                 qMin = qNearNode->GetJointPose();
                 qMinIdx = qNearNode->GetIndex();
             }
         }
 
     }
-    //Line#13
-    qNewNode->SetParent(tree.GetTree()[qMinIdx]); // This is how I understand adding edge. but let's keep see how the rest of the algorithm is like
+
+    qNewNode->SetParent(tree.GetTree()[qMinIdx]); 
     
     for(auto& qNearNode: qNearNodes){
         if (qNearNode->GetIndex() == qMinIdx) {
@@ -188,8 +185,6 @@ State RRTSolver::ExtendAndRewire(Tree& tree, const std::vector<double>& qRand)
         if(IsObstacleFree(tree.GetTree()[qMinIdx], qNearNode) && qNearNode->GetFValue() > qNewNode->GetFValue() + GetLineCost(qNewNode, qNearNode)){
             qNearNode->SetParent(qNewNode);
         }
-
-
     }
 
     if (qNewConfig.first == State::REACHED) {
@@ -200,11 +195,9 @@ State RRTSolver::ExtendAndRewire(Tree& tree, const std::vector<double>& qRand)
         return State::REACHED;
     }
     if (qNewConfig.first == State::ADVANCED){
-        // std::cout<< "ADVANCED"  << std::endl;
         return State::ADVANCED;
     }
 
-    // return State::ADVANCED; // not sure about this
 }
 
 
@@ -230,11 +223,9 @@ State RRTSolver::ExtendTree(Tree& tree, const std::vector<double>& qRand)
         return State::REACHED;
     }
     if (qNewConfig.first == State::ADVANCED){
-        // std::cout<< "ADVANCED"  << std::endl;
         return State::ADVANCED;
     }
 
-    // return State::ADVANCED; // not sure about this
 }
 
 State RRTSolver::ConnectTree(Tree& tree, const std::vector<double>& qNew)
@@ -262,8 +253,6 @@ std::pair<State, std::vector<double>> RRTSolver::CheckNewConfig(const std::vecto
     }
     dist = std::sqrt(dist);
     
-    // if (dist < meps) {}?
-
     int t=1;
     while(t<mstepIters) 
     {
@@ -278,23 +267,17 @@ std::pair<State, std::vector<double>> RRTSolver::CheckNewConfig(const std::vecto
 
         } else {
             if (t==1){
-                // std::cout<< "Colliding instantly->Trapped?: " << t << std::endl;
-                // printVector(qNew, mnumOfDOFs);
-                
                 return std::make_pair(State::TRAPPED, qNewPrev);
             } else {
-                // std::cout<< "progressed t steps: " << t << std::endl;
                 return std::make_pair(State::ADVANCED, qNewPrev);      
             }        
         } 
         t++;
     }
-    // std::cout<< "progressed t steps: " << t << std::endl;
     return std::make_pair(State::ADVANCED, qNew);
 }
 
 bool RRTSolver::CheckGoal(std::vector<double> qNew){
-
     if (mmyTree.ComputeDistance(qNew, convertToVector(mgoalPose, mnumOfDOFs)) < mgoalTol){
         return true;
     }
@@ -313,7 +296,7 @@ std::vector<std::vector<double>> RRTSolver::GetRRTConnectPath(Tree& tree1, Tree&
     
     std::vector<std::vector<double>> path1; 
     std::vector<std::vector<double>> path2; 
-
+    std::cout<< "Total trees size are: "<<tree1.GetTree().size()+tree2.GetTree().size() <<std::endl;
     path1 = tree1.GetPath(tree1.GetTree().back());
     path2 = tree2.GetPath(tree2.GetTree().back());
     std::reverse(path2.begin(), path2.end());

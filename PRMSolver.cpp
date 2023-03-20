@@ -127,25 +127,10 @@ std::unique_ptr<Graph> PRMSolver::InitializeGraph()
 
 void PRMSolver::BuildRoadMap(std::unique_ptr<Graph>& pgraph)
 {
-
-    // std::cout<<"Created graphSmartPtr"<<std::endl;
     int i = 0;
     float progress = 0.0;
     while (i < mnumOfSamples)
     {
-        // int idx = i;
-        // std::vector<double> vertex = SampleRandomVertex();
-        // // std::cout<<"Sampled vertex"<<std::endl;
-        // double* angles = vertex.data();
-        // if(!IsValidArmConfiguration(angles, mnumOfDOFs, mmap, mmaxX, mmaxY)) {
-        //     // std::cout<<"new vertex conflict!"<<std::endl;
-        //     continue;               
-        // }
-            
-        // std::shared_ptr<Node> node1SmartPtr = std::make_shared<Node>(idx, vertex);
-        // pgraph->AddVertex(node1SmartPtr);
-
-        // std::cout<<"i is: "<< i <<"\n" ;
         std::shared_ptr<Node> node1SmartPtr = pgraph->GetGraph()[i];
         // std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetNearestNeighbor(node1SmartPtr, pgraph.get());
         std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> neighbors = GetKNumberOfNeighbor(node1SmartPtr, pgraph.get());
@@ -165,7 +150,6 @@ void PRMSolver::BuildRoadMap(std::unique_ptr<Graph>& pgraph)
                 if (node1SmartPtr == neighborRef) {
                     continue;
                 }
-                // graphSmartPtr->AddEdge(node1SmartPtr, neighborRef);                    
                 if (mcomponentMap[node1ID].size() >= mcomponentMap[neighborID].size()){
                     node1SmartPtr->AddEdge(neighborRef);
                     for (auto edge : neighborRef->GetEdges()){
@@ -182,26 +166,16 @@ void PRMSolver::BuildRoadMap(std::unique_ptr<Graph>& pgraph)
                 
             }
         } 
-        // std::cout<< "node1's edgesize: " << node1SmartPtr->GetEdges().size() <<std::endl;
-        if (float(i)/float(mnumOfSamples) > progress)
-        {
-            // Progress achieved
-            std::cout << progress*100 << "%... ";
-            progress += 0.1;
-        }
-        // std::cout<<"neightbor empty!"<<std::endl; 
+        // if (float(i)/float(mnumOfSamples) > progress)
+        // {
+        //     // Progress achieved
+        //     std::cout << progress*100 << "%... ";
+        //     progress += 0.1;
+        // }
         i++;
     }
 
     std::cout<<"graph size is: "<<pgraph->GetGraph().size()<<std::endl;
-    // for (int i=0; i<graphSmartPtr->GetGraph().size(); i++) {
-    //     std::cout<<"Vertex, idx : "<<graphSmartPtr->GetGraph()[i]<< ", "<< graphSmartPtr->GetGraph()[i]->GetIndex() <<" edge: ";
-    //     for (auto& edge : graphSmartPtr->GetGraph()[i]->GetEdges()){
-    //         std::cout << edge<<", ";
-    //     }
-    //     std::cout<<std::endl;
-    // }
-
 }
 
 inline std::vector<double> ArrayToVector(double* arr, size_t arr_len) {
@@ -215,24 +189,17 @@ std::shared_ptr<Node> PRMSolver::GetClosestNode(std::unique_ptr<Graph>& pgraph, 
     std::vector<std::shared_ptr<Node>> neighbors;
 
     double dist;
-    const double DIST_THRESHOLD = 4*PI/3;
-    // std::cout<<ppose<<std::endl;
-    //This takes a lot of time!!
+    const double DIST_THRESHOLD = 4*1;
     for (int i=0; i<pgraph->GetGraph().size(); i++) {
         dist = ComputeDistance(ppose, pgraph->GetGraph()[i]);
-        // std::cout<<pgraph->GetGraph()[i]<<std::endl;
-        // std::cout<<"dist btw start and node is: "<<dist<<std::endl;
         if (dist <= DIST_THRESHOLD && dist > 0) {
             if (!IsConnect(ppose, pgraph->GetGraph()[i])) {
                 continue;   
             }
-
             if (pgraph->GetGraph()[i]->GetEdges().size() == 0) {
                 continue;
             }
-
             neighbors.push_back(pgraph->GetGraph()[i]);                
-
         }
     }
 
@@ -249,11 +216,8 @@ std::vector<std::vector<double>> PRMSolver::QueryRoadMap(std::unique_ptr<Graph>&
 
     pstart->SetGValue(0.0);   
     pstart->SetFValue(pstart->GetGValue());
-
-    std::cout << "start id: " << pstart->GetIndex() << " goal id: " << pgoal->GetIndex() << std::endl;
-
+    // std::cout << "start id: " << pstart->GetIndex() << " goal id: " << pgoal->GetIndex() << std::endl;
     path = query.Dijkstra(pgraph, pstart, pgoal);
-
     std::vector<double> mstartPoseVector = convertToVector(mstartPose, mnumOfDOFs);
     std::vector<double> mgoalPoseVector = convertToVector(mgoalPose, mnumOfDOFs);
     

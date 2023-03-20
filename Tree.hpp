@@ -18,11 +18,8 @@ class Tree
         }
 
         void AddNode(std::shared_ptr<Node> node) { mtree.push_back(node); }
-
         void AddEdge(std::shared_ptr<Node> parent, std::shared_ptr<Node> child) {parent->AddEdge(child);}
-
         std::shared_ptr<Node> GetRoot() const { return mroot;}
-
         std::vector<std::shared_ptr<Node>> GetTree() const { return mtree; }
 
         double ComputeDistance(const std::shared_ptr<Node> qRand, const std::shared_ptr<Node> pnode) const 
@@ -52,8 +49,7 @@ class Tree
             return std::sqrt(dist);
         }
 
-        // use KD Tree for optimization
-        std::shared_ptr<Node> GetNearestNode(const std::vector<double> qRand) const 
+        std::shared_ptr<Node> GetNearestNode(const std::vector<double> qRand) const  // can optimize using KD Tree
         {
             std::shared_ptr<Node> nearestNode;
             double minDist = std::numeric_limits<double>::infinity();
@@ -68,7 +64,6 @@ class Tree
             return nearestNode;
         }
 
-
         std::vector<std::vector<double>> GetPath(std::shared_ptr<Node> pgoal) const 
         {
             std::vector<std::vector<double>> path;
@@ -78,13 +73,7 @@ class Tree
             printVector(pgoal->GetJointPose(), pgoal->GetJointPose().size());
             ///////////
             std::shared_ptr<Node> pparent = pgoal->GetParent();
-            while (pparent != nullptr) {
-                ////////////
-                std::cout<< pparent << " pose: ";
-                printVector(pparent->GetJointPose(), pparent->GetJointPose().size());
-                printf("\n");
-                ///////////
-                
+            while (pparent != nullptr) {                
                 path.push_back(pparent->GetJointPose());
                 pparent = pparent->GetParent();
             }
@@ -93,54 +82,8 @@ class Tree
             return path;
         }
 
-
     private:        
         std::shared_ptr<Node> mroot;
         std::vector<std::shared_ptr<Node>> mtree;
     
 };
-
-
-
-// Using KD Tree
-// class Tree 
-// {
-//     public:
-//         typedef std::vector<double> Point;
-//         typedef nanoflann::KDTreeSingleIndexAdaptor<
-//             nanoflann::L2_Simple_Adaptor<double, Tree>,
-//             Tree,
-//             mnumOfDOF /* dimension of the space */,
-//             int /* index type */
-//         > KDTree;
-
-//         Tree(int numOfDOF) 
-//         : mnumOfDOF(numOfDOF), mKDTree(numOfDOF, *this, nanoflann::KDTreeSingleIndexAdaptorParams(10)) 
-//         {
-
-//         }
-
-//         std::shared_ptr<Node> GetRoot() const { return mRoot; }
-//         void SetRoot(std::shared_ptr<Node> root) { mRoot = root; }
-
-//         void AddNode(std::shared_ptr<Node> node) {
-//             mNodes.push_back(node);
-//             mPoints.push_back(node->GetJointPose());
-//             mKDTree.addPoints(mNodes.size()-1, mPoints.back().data());
-//         }
-
-//         std::shared_ptr<Node> GetNearestNeighbor(const std::vector<double>& query) const {
-//             std::vector<size_t> indices(1);
-//             std::vector<double> distances(1);
-//             mKDTree.knnSearch(query.data(), 1, indices.data(), distances.data());
-//             return mNodes[indices[0]];
-//         }
-
-//     private:
-        
-//         int mnumOfDOF;
-//         std::shared_ptr<Node> mRoot;
-//         std::vector<std::shared_ptr<Node>> mNodes;
-//         std::vector<Point> mPoints;
-//         KDTree mKDTree;
-// };

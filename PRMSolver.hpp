@@ -22,7 +22,6 @@ class PRMSolver
 
         std::unique_ptr<Graph> InitializeGraph();
         void BuildRoadMap(std::unique_ptr<Graph>& pgraph);
-        // std::vector<std::vector<double>> QueryRoadMap(std::unique_ptr<Graph>& pgraph);
         std::vector<std::vector<double>> QueryRoadMap(std::unique_ptr<Graph>& pgraph);
         std::unordered_map<int, std::vector<std::shared_ptr<Node>>> mcomponentMap;
 
@@ -34,18 +33,13 @@ class PRMSolver
         double* mgoalPose;  
         int mnumOfDOFs;
         int mnumOfSamples;
-        // std::unordered_map<int, double> mheuristics;
         double mmaxDist;
 
-        
         std::vector<double> SampleRandomVertex();
         double ComputeDistance(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr);
         std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> GetNearestNeighbor(std::shared_ptr<Node> node1SmartPtr, Graph* pgraph);
         std::priority_queue<std::shared_ptr<Node>, std::vector<std::shared_ptr<Node>>, NeighborCompare> GetKNumberOfNeighbor(std::shared_ptr<Node> node1SmartPtr, Graph* pgraph);
         bool IsConnect(std::shared_ptr<Node> node1SmartPtr, std::shared_ptr<Node> node2SmartPtr);
-        
-        std::shared_ptr<Node> GetClosestNode(std::unique_ptr<Graph>& pgraph, double* pose);
-        //  SearchRoadMap();
-        
+        std::shared_ptr<Node> GetClosestNode(std::unique_ptr<Graph>& pgraph, double* pose); 
 
 };
